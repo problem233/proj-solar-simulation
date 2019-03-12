@@ -22,7 +22,7 @@
         "multiline": "never",
         "esSpecCompliant": true
       }],
-      "variable-name": [true, "allow-leading-underscore"]
+      "variable-name": false
     },
     "rulesDirectory": []
 }
