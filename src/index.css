@@ -1,0 +1,32 @@
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #141852;
+  color: #B9BACB;
+}
+
+.em {
+  color: #D0D1DC;
+}
+
+#view {
+  position: absolute;
+  height: 100%;
+  width: 75%;
+  background-color: #070B34;
+}
+
+#control {
+  position: absolute;
+  right: 0;
+  height: 100%;
+  width: 25%;
+  box-sizing: border-box;
+  padding: 1.5% 2%;
+}
+
+#control h1 {
+  margin-top: 0;
+  margin-bottom: 0.5em;
+}
