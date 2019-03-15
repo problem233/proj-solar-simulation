@@ -12,6 +12,69 @@
   <div id="view"></div>
   <div id="control">
     <h1>毁灭太阳系模拟</h1>
+    <div id="time">
+      <b>时间：</b>
+      <button id="continue">▶</button>
+      <button id="pause">❙❙</button>
+    </div>
+    <div id="scale">
+      <b>比例尺：</b>
+      1 px /
+      <input id="scale" type="number" step="any" min="0">
+      m
+    </div>
+    <div id="data">
+      <b>数据：</b>
+      <div id="preset">
+        预设：
+        <select id="preset-select">
+          <option value="mercury">水星</option>
+        </select>
+      </div>
+      <div id="state">
+        状态：
+        <div id="state-M">
+          恒星质量 <i>M</i>：
+          <input id="input-M" type="number" step="any" min="0">
+          kg
+        </div>
+        <div id="state-m">
+          行星质量 <i>m</i>：
+          <input id="input-m" type="number" step="any" min="0">
+          kg
+        </div>
+        <div id="state-pos">
+          行星位置（以恒星球心为坐标原点）：
+          <div id="state-pos-x">
+            <i>x</i>：
+            <input type="number" id="input-pos-x" step="any">
+            m
+          </div>
+          <div id="state-pos-y">
+            <i>y</i>：
+            <input type="number" id="input-pos-y" step="any">
+            m
+          </div>
+        </div>
+        <div id="state-v">
+          行星速度：
+          <div id="state-v-x">
+            <i>v<sub>x</sub></i>：
+            <input type="number" id="input-v-x" step="any">
+            m/s
+          </div>
+          <div id="state-v-x">
+            <i>v<sub>y</sub></i>：
+            <input type="number" id="input-v-y" step="any">
+            m/s
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="about">
+      <em>程序作者：阮琰杰</em><br>
+      <em>其它小组成员：王谢虞、陈景毅</em>
+    </div>
   </div>
 </body>
 </html>

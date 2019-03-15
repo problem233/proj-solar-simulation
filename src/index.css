@@ -6,7 +6,7 @@ body {
   color: #B9BACB;
 }
 
-.em {
+b {
   color: #D0D1DC;
 }
 
@@ -30,3 +30,32 @@ body {
   margin-top: 0;
   margin-bottom: 0.5em;
 }
+
+#control > div div {
+  margin-left: 1rem;
+}
+
+#control button, #control input {
+  height: 1.5rem;
+  border-style: none;
+  border-radius: 0.5rem;
+  background-color: #B9BACB;
+  color: #070B34;
+}
+
+#time button {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+}
+
+#control button:hover {
+  background-color: #D0D1DC;
+}
+
+#about {
+  position: absolute;
+  bottom: 6%;
+  left: 8%;
+}
+

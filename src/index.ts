@@ -70,5 +70,9 @@ window.onload = () => {
     if (paused) paused = false
     else setTimeout(() => frame(multiSimulate(state, T, steps)), frameTime)
   }
-  frame(data.mercury)
+
+  (<HTMLButtonElement> document.getElementById('continue'))
+    .addEventListener('click', () => frame(stateStore));
+  (<HTMLButtonElement> document.getElementById('pause'))
+    .addEventListener('click', () => { paused = true })
 }
