@@ -23,6 +23,9 @@ const data: { [key: string]: State } = {
 
 const length = ([x, y]: [number, number]) => Math.sqrt(x * x + y * y)
 
+const multiSimulate = (state: State, T: number, steps: number): State =>
+  steps > 0 ? multiSimulate(simulate(state, T), T, steps - 1) : state
+
 window.onload = () => {
   const view = <HTMLDivElement> document.getElementById('view')
 
@@ -32,10 +35,11 @@ window.onload = () => {
   view.appendChild(canvas)
 
   const scale = canvas.height / 3.1e11
-  const timescale = 3600 * 12 // 12 hrs / s
+  const viewSpeed = 3600 * 25 * 10 // 5 days / s
   const framerate = 50
+  const simSpeed = framerate * 100 // 5000 steps / s
 
-  const T = timescale / framerate
+  const T = viewSpeed / simSpeed
 
   const ctx = <CanvasRenderingContext2D> canvas.getContext('2d')
 
@@ -47,8 +51,9 @@ window.onload = () => {
     ctx.fillStyle = "yellow"
     ctx.fill(circle(canvas.width / 2, canvas.height / 2, 50))
     ctx.fillStyle = "gray"
-    ctx.fill(circle(canvas.width / 2 + state.m_pos[0] * scale, canvas.height / 2 - state.m_pos[1] * scale, 10))
-    setTimeout(() => frame(simulate(state, T)), 1000 / framerate)
+    ctx.fill(circle(canvas.width / 2 + state.m_pos[0] * scale,
+                    canvas.height / 2 - state.m_pos[1] * scale, 10))
+    setTimeout(() => frame(multiSimulate(state, T, simSpeed / framerate)), 1000 / framerate)
   }
   frame(data.mercury)
 }
