@@ -12,6 +12,7 @@
       "member-access": [true, "no-public", "check-accessor"],
       "member-ordering": false,
       "no-angle-bracket-type-assertion": false,
+      "only-arrow-functions": false,
       "no-console": false,
       "no-shadowed-variable": false,
       "object-literal-sort-keys": false,

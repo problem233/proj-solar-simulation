@@ -43,6 +43,10 @@ b {
   color: #070B34;
 }
 
+#control input {
+  width: 6rem;
+}
+
 #time button {
   width: 2rem;
   height: 2rem;

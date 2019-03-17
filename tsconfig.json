@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es5",
     "module": "esnext",
-    "lib": ["dom", "dom.iterable", "es5"],
+    "lib": ["dom", "dom.iterable", "es5", "es2015.iterable"],
     "outDir": "dist",
     "strict": true,
     "esModuleInterop": true,
