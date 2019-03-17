@@ -1,4 +1,4 @@
-import { simulate, State } from './simulation'
+import { simulate, State, vecMult } from './simulation'
 
 function clearCanvas (ctx: CanvasRenderingContext2D) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
@@ -62,7 +62,7 @@ function drawState (ctx: CanvasRenderingContext2D, scale: number, realisticSize:
   (<HTMLInputElement> document.getElementById('input-pos-r')).valueAsNumber = length(state.m_pos) / 1e9;
   (<HTMLInputElement> document.getElementById('input-v-x')).valueAsNumber = state.m_v[0] / 1e3;
   (<HTMLInputElement> document.getElementById('input-v-y')).valueAsNumber = state.m_v[1] / 1e3;
-  (<HTMLInputElement> document.getElementById('input-v')).valueAsNumber = length(state.m_v) / 1e3
+  (<HTMLInputElement> document.getElementById('input-v-len')).valueAsNumber = length(state.m_v) / 1e3
 }
 
 window.onload = () => {
@@ -209,6 +209,13 @@ window.onload = () => {
       stateStore.m_pos[1] = this.valueAsNumber * 1e9
       redraw()
     });
+  (<HTMLInputElement> document.getElementById('input-pos-r'))
+    .addEventListener('input', function () {
+      stateStore.m_pos =
+        vecMult(this.valueAsNumber * 1e9 / length(stateStore.m_pos),
+                stateStore.m_pos)
+      redraw()
+    });
   (<HTMLInputElement> document.getElementById('input-v-x'))
     .addEventListener('input', function () {
       stateStore.m_v[0] = this.valueAsNumber * 1e3
@@ -219,12 +226,11 @@ window.onload = () => {
       stateStore.m_v[1] = this.valueAsNumber * 1e3
       redraw()
     });
-  (<HTMLInputElement> document.getElementById('input-pos-r'))
+  (<HTMLInputElement> document.getElementById('input-v-len'))
     .addEventListener('input', function () {
-      redraw()
-    });
-  (<HTMLInputElement> document.getElementById('input-v'))
-    .addEventListener('input', function () {
+      stateStore.m_v =
+        vecMult(this.valueAsNumber * 1e3 / length(stateStore.m_v),
+                stateStore.m_v)
       redraw()
     })
 }

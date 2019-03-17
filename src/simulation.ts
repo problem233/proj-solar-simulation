@@ -17,7 +17,7 @@ const signum = (x: number) => x > 0 ? 1 : x === 0 ? 0 : -1
 const square = (x: number) => x * x
 
 const vecPlus = (x: Vec, y: Vec): Vec => [x[0] + y[0], x[1] + y[1]]
-const vecMult = (k: number, x: Vec) => <Vec> x.map(x => k * x)
+export const vecMult = (k: number, x: Vec) => <Vec> x.map(x => k * x)
 
 export function simulate (
     { m, m_v, m_pos: [m_x, m_y], M }: State, T: number): State {
