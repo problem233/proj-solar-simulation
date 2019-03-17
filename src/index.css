@@ -59,7 +59,8 @@ b {
 
 #about {
   position: absolute;
-  bottom: 6%;
+  bottom: 4%;
   left: 8%;
+  font-size: small;
 }
 

@@ -1,4 +1,4 @@
-import { simulate, State, vecMult } from './simulation'
+import { explode, simulate, State, vecMult } from './simulation'
 
 function clearCanvas (ctx: CanvasRenderingContext2D) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
@@ -104,7 +104,10 @@ window.onload = () => {
   inpAcc.valueAsNumber = simSpeed
   inpAcc.step = framerate.toString()
   inpAcc.min = framerate.toString()
-  const inpCP = (<HTMLButtonElement> document.getElementById('continue-pause'))
+  const inpCP = (<HTMLButtonElement> document.getElementById('continue-pause'));
+  (<HTMLInputElement> document.getElementById('input-energy')).valueAsNumber = 0;
+  (<HTMLSelectElement> document.getElementById('axis-select')).selectedIndex = 0;
+  (<HTMLInputElement> document.getElementById('input-angle')).valueAsNumber = 180
 
   function start () {
     function frame (state: State) {
@@ -156,6 +159,27 @@ window.onload = () => {
       if (this.validity.valid) {
         scale = 1 / this.valueAsNumber / 1e7
         redraw()
+      }
+    });
+  // explosion
+  (<HTMLButtonElement> document.getElementById('explode'))
+    .addEventListener('click', () => {
+      const inpEnergy = (<HTMLInputElement> document.getElementById('input-energy'))
+      const inpAngle = (<HTMLInputElement> document.getElementById('input-angle'))
+      if (inpEnergy.validity.valid && inpAngle.validity.valid) {
+        const prevPaused = reallyPaused
+        pause()
+        setTimeout(() => {
+          stateStore = explode(
+            stateStore,
+            inpEnergy.valueAsNumber * 1e29,
+            inpAngle.valueAsNumber / 180 * Math.PI,
+            <0 | 1> (
+              <HTMLSelectElement> document.getElementById('axis-select')
+            ).selectedIndex)
+          if (! prevPaused) start()
+          else redraw()
+        }, frameTime)
       }
     })
   // data
