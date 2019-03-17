@@ -73,17 +73,17 @@ window.onload = () => {
   canvas.width = view.clientWidth
   view.appendChild(canvas)
 
-  // simulation related constants
-  const viewSpeed = 3600 * 25 * 10 // 10 days / s
+  // constants
   const framerate = 50
-  const simSpeed = framerate * 100 // 5000 steps / s
-
-  // calculated constants
-  const T = viewSpeed / simSpeed
-  const steps = simSpeed / framerate
   const frameTime = 1000 / framerate
 
   // state store
+  let viewSpeed = 3600 * 25 * 10 // 10 days / s
+  let simSpeed = framerate * 100 // 5000 steps / s
+
+  let T = viewSpeed / simSpeed
+  let steps = simSpeed / framerate
+
   let scale = canvas.height / 3.1e11
   let stateStore: State = data.mercury
   let toPause = false
@@ -98,7 +98,13 @@ window.onload = () => {
   }
 
   redraw();
-  (<HTMLInputElement> document.getElementById('input-scale')).valueAsNumber = 1 / scale / 1e7
+  (<HTMLInputElement> document.getElementById('input-scale')).valueAsNumber = 1 / scale / 1e7;
+  (<HTMLInputElement> document.getElementById('input-timescale')).valueAsNumber = 10
+  const inpAcc = (<HTMLInputElement> document.getElementById('input-accuracy'))
+  inpAcc.valueAsNumber = simSpeed
+  inpAcc.step = framerate.toString()
+  inpAcc.min = framerate.toString()
+  const inpCP = (<HTMLButtonElement> document.getElementById('continue-pause'))
 
   function start () {
     function frame (state: State) {
@@ -112,24 +118,45 @@ window.onload = () => {
     if (reallyPaused) {
       toPause = false
       reallyPaused = false
+      inpCP.innerText = "❙❙"
       frame(stateStore)
     }
   }
 
   function pause () {
-    if (! reallyPaused) toPause = true
+    if (! reallyPaused) {
+      toPause = true
+      inpCP.innerText = "▶"
+    }
   }
 
   // time
-  (<HTMLButtonElement> document.getElementById('continue'))
-    .addEventListener('click', start);
-  (<HTMLButtonElement> document.getElementById('pause'))
-    .addEventListener('click', pause);
+  inpCP.addEventListener('click', function () {
+    if (reallyPaused) start()
+    else pause()
+  });
+  (<HTMLInputElement> document.getElementById('input-timescale'))
+    .addEventListener('input', function () {
+      if (this.validity.valid) {
+        viewSpeed = 3600 * 24 * this.valueAsNumber
+        T = viewSpeed / simSpeed
+      }
+    });
+  (<HTMLInputElement> document.getElementById('input-accuracy'))
+    .addEventListener('input', function () {
+      if (this.validity.valid) {
+        simSpeed = this.valueAsNumber
+        T = viewSpeed / simSpeed
+        steps = simSpeed / framerate
+      }
+    });
   // scale
   (<HTMLInputElement> document.getElementById('input-scale'))
     .addEventListener('input', function () {
-      scale = 1 / this.valueAsNumber / 1e7
-      redraw()
+      if (this.validity.valid) {
+        scale = 1 / this.valueAsNumber / 1e7
+        redraw()
+      }
     })
   // data
   Object.keys(data).forEach(key => {
@@ -152,17 +179,25 @@ window.onload = () => {
       .getElementsByTagName('input'))
     .forEach(elem => {
       elem.addEventListener('click', pause)
-      elem.addEventListener('blur', start)
+      elem.addEventListener('blur', function () {
+        if (this.validity.valid) {
+          start()
+        }
+      })
     });
   (<HTMLInputElement> document.getElementById('input-M'))
     .addEventListener('input', function () {
-      stateStore.M = this.valueAsNumber * 1e29
-      redraw()
+      if (this.validity.valid) {
+        stateStore.M = this.valueAsNumber * 1e29
+        redraw()
+      }
     });
   (<HTMLInputElement> document.getElementById('input-m'))
     .addEventListener('input', function () {
-      stateStore.m = this.valueAsNumber * 1e22
-      redraw()
+      if (this.validity.valid) {
+        stateStore.m = this.valueAsNumber * 1e22
+        redraw()
+      }
     });
   (<HTMLInputElement> document.getElementById('input-pos-x'))
     .addEventListener('input', function () {

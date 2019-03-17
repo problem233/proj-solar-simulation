@@ -14,8 +14,17 @@
     <h1>毁灭太阳系模拟</h1>
     <div id="time">
       <b>时间：</b>
-      <button id="continue">▶</button>
-      <button id="pause">❙❙</button>
+      <button id="continue-pause">▶</button>
+      <div id="timescale">
+        速度：
+        <input type="number" id="input-timescale" step="any" min="0">
+        day/s
+      </div>
+      <div id="accuracy">
+        精确度：
+        <input type="number" id="input-accuracy" step="any" min="0">
+        step/s
+      </div>
     </div>
     <div id="scale">
       <b>比例尺：</b>
