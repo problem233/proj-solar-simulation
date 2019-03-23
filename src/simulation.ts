@@ -1,6 +1,7 @@
 type Vec = [number, number]
 
 export interface State {
+  t: number
   m: number
   m_v: Vec
   /**
@@ -20,19 +21,20 @@ export const vecSquare = ([x, y]: Vec) => x * x + y * y
 export const vecLength = (x: Vec) => Math.sqrt(vecSquare(x))
 
 export function simulate (
-    { m, m_v, m_pos: [m_x, m_y], M }: State, T: number): State {
+    { t, m, m_v, m_pos: [m_x, m_y], M }: State, T: number): State {
   const angle = Math.atan2(m_y, m_x) + Math.PI
   const a = vecMult(G * M / (square(m_x) + square(m_y)),
                     [Math.cos(angle), Math.sin(angle)])
   return {
     m, M,
+    t: t + T,
     m_v: vecPlus(m_v, vecMult(T, a)),
     m_pos: vecPlus([m_x, m_y],
       vecPlus(vecMult(T, m_v), vecMult(square(T) / 2, a)))
   }
 }
 
-export const explode = ({ m, m_v, m_pos, M }: State, W: number): State => ({
-  m, M, m_pos,
-  m_v: vecMult(Math.sqrt(1 - 2 * W / m / vecSquare(m_v)), m_v)
+export const explode = (state: State, W: number): State => ({
+  ...state,
+  m_v: vecMult(Math.sqrt(1 - 2 * W / state.m / vecSquare(state.m_v)), state.m_v)
 })

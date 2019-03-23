@@ -9,31 +9,33 @@ interface Styled {
 }
 
 const M = 1.9891e30
+const sunRadius = 6.957e8
+
 const sunStyle: Style = [[0, '#DE5E06'], [0.6, '#EC7610'], [0.9, '#F6C760'], [1, '#FEF9C7']]
 
 const data: { [key: string]: State & Styled & { name: string } } = {
-  mercury: { M,
+  mercury: { M, t: 0,
     name: "水星",
     style: [[0, '#7E7673'], [0.7, '#8C8384'], [1, '#B0A89D']],
     m: 3.3011e23,
     m_v: [0, 3.886e4],
     m_pos: [6.982e10, 0]
   },
-  venus: { M,
+  venus: { M, t: 0,
     name: "金星",
     style: [[0, '#A96117'], [0.7, '#C08120'], [1, '#E1A83D']],
     m: 4.8675e24,
     m_v: [0, 3.479e4],
     m_pos: [1.0894e11, 0]
   },
-  earth: { M,
+  earth: { M, t: 0,
     name: "地球",
     style: [[0, '#4D7ABE'], [0.7, '#5283BB'], [1, '#83B1ED']],
     m: 5.9723e24,
     m_v: [0, 2.929e4],
     m_pos: [1.521e11, 0]
   },
-  mars: { M,
+  mars: { M, t: 0,
     name: "火星",
     style: [[0, '#9B5A20'], [0.7, '#AD6F2F'], [1, '#D59639']],
     m: 6.4171e23,
@@ -43,7 +45,11 @@ const data: { [key: string]: State & Styled & { name: string } } = {
 }
 
 const multiSimulate = (state: State, T: number, steps: number): State =>
-  steps > 0 ? multiSimulate(simulate(state, T), T, steps - 1) : state
+  steps > 0
+  ? vecLength(state.m_pos) <= sunRadius
+    ? state
+    : multiSimulate(simulate(state, T), T, steps - 1)
+  : state
 
 function drawState (
     ctx0: CanvasRenderingContext2D, ctx1: CanvasRenderingContext2D,
@@ -58,6 +64,7 @@ function drawState (
   ]
   styledCircle(ctx0, style, viewMPos[0], viewMPos[1], 5e9 * scale)
   fadingOutTrace(ctx1, viewMPos[0], viewMPos[1]);
+  (<HTMLSpanElement> document.getElementById('time-display')).innerText = (state.t / 3600 / 24).toFixed(3);
   (<HTMLInputElement> document.getElementById('input-M')).valueAsNumber = state.M / 1e29;
   (<HTMLInputElement> document.getElementById('input-m')).valueAsNumber = state.m / 1e22;
   (<HTMLInputElement> document.getElementById('input-pos-x')).valueAsNumber = state.m_pos[0] / 1e9;
@@ -120,8 +127,19 @@ window.onload = () => {
   const inpCP = (<HTMLButtonElement> document.getElementById('continue-pause'));
   (<HTMLInputElement> document.getElementById('input-work')).valueAsNumber = 0
 
+  function pause () {
+    if (! reallyPaused) {
+      toPause = true
+      inpCP.innerText = "▶"
+    }
+  }
+
   function start () {
     function frame (state: State) {
+      if (vecLength(state.m_pos) <= sunRadius) {
+        pause();
+        (<HTMLHeadingElement> document.getElementById('title')).style.color = 'red'
+      }
       stateStore = state
       redraw()
       if (toPause) {
@@ -134,13 +152,6 @@ window.onload = () => {
       reallyPaused = false
       inpCP.innerText = "❙❙"
       frame(stateStore)
-    }
-  }
-
-  function pause () {
-    if (! reallyPaused) {
-      toPause = true
-      inpCP.innerText = "▶"
     }
   }
 
