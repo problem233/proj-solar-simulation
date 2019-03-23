@@ -1,4 +1,7 @@
-import { explode, simulate, State, vecMult } from './simulation'
+import {
+  explode, simulate, State,
+  vecLength, vecMult, vecSquare
+} from './simulation'
 
 function clearCanvas (ctx: CanvasRenderingContext2D) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
@@ -40,8 +43,6 @@ const data: { [key: string]: State & { name: string } } = {
   }
 }
 
-const length = ([x, y]: [number, number]) => Math.sqrt(x * x + y * y)
-
 const multiSimulate = (state: State, T: number, steps: number): State =>
   steps > 0 ? multiSimulate(simulate(state, T), T, steps - 1) : state
 
@@ -59,10 +60,11 @@ function drawState (ctx: CanvasRenderingContext2D, scale: number, realisticSize:
   (<HTMLInputElement> document.getElementById('input-m')).valueAsNumber = state.m / 1e22;
   (<HTMLInputElement> document.getElementById('input-pos-x')).valueAsNumber = state.m_pos[0] / 1e9;
   (<HTMLInputElement> document.getElementById('input-pos-y')).valueAsNumber = state.m_pos[1] / 1e9;
-  (<HTMLInputElement> document.getElementById('input-pos-r')).valueAsNumber = length(state.m_pos) / 1e9;
+  (<HTMLInputElement> document.getElementById('input-pos-r')).valueAsNumber = vecLength(state.m_pos) / 1e9;
   (<HTMLInputElement> document.getElementById('input-v-x')).valueAsNumber = state.m_v[0] / 1e3;
   (<HTMLInputElement> document.getElementById('input-v-y')).valueAsNumber = state.m_v[1] / 1e3;
-  (<HTMLInputElement> document.getElementById('input-v-len')).valueAsNumber = length(state.m_v) / 1e3
+  (<HTMLInputElement> document.getElementById('input-v-len')).valueAsNumber = vecLength(state.m_v) / 1e3;
+  (<HTMLInputElement> document.getElementById('input-ek')).valueAsNumber = state.m * vecSquare(state.m_v) / 2 / 1e29
 }
 
 window.onload = () => {
@@ -105,9 +107,7 @@ window.onload = () => {
   inpAcc.step = framerate.toString()
   inpAcc.min = framerate.toString()
   const inpCP = (<HTMLButtonElement> document.getElementById('continue-pause'));
-  (<HTMLInputElement> document.getElementById('input-energy')).valueAsNumber = 0;
-  (<HTMLSelectElement> document.getElementById('axis-select')).selectedIndex = 0;
-  (<HTMLInputElement> document.getElementById('input-angle')).valueAsNumber = 180
+  (<HTMLInputElement> document.getElementById('input-work')).valueAsNumber = 0
 
   function start () {
     function frame (state: State) {
@@ -164,19 +164,12 @@ window.onload = () => {
   // explosion
   (<HTMLButtonElement> document.getElementById('explode'))
     .addEventListener('click', () => {
-      const inpEnergy = (<HTMLInputElement> document.getElementById('input-energy'))
-      const inpAngle = (<HTMLInputElement> document.getElementById('input-angle'))
-      if (inpEnergy.validity.valid && inpAngle.validity.valid) {
+      const inpWork = (<HTMLInputElement> document.getElementById('input-work'))
+      if (inpWork.validity.valid) {
         const prevPaused = reallyPaused
         pause()
         setTimeout(() => {
-          stateStore = explode(
-            stateStore,
-            inpEnergy.valueAsNumber * 1e29,
-            inpAngle.valueAsNumber / 180 * Math.PI,
-            <0 | 1> (
-              <HTMLSelectElement> document.getElementById('axis-select')
-            ).selectedIndex)
+          stateStore = explode(stateStore, inpWork.valueAsNumber * 1e29)
           if (! prevPaused) start()
           else redraw()
         }, frameTime)
@@ -236,7 +229,7 @@ window.onload = () => {
   (<HTMLInputElement> document.getElementById('input-pos-r'))
     .addEventListener('input', function () {
       stateStore.m_pos =
-        vecMult(this.valueAsNumber * 1e9 / length(stateStore.m_pos),
+        vecMult(this.valueAsNumber * 1e9 / vecLength(stateStore.m_pos),
                 stateStore.m_pos)
       redraw()
     });
@@ -253,8 +246,16 @@ window.onload = () => {
   (<HTMLInputElement> document.getElementById('input-v-len'))
     .addEventListener('input', function () {
       stateStore.m_v =
-        vecMult(this.valueAsNumber * 1e3 / length(stateStore.m_v),
+        vecMult(this.valueAsNumber * 1e3 / vecLength(stateStore.m_v),
                 stateStore.m_v)
+      redraw()
+    });
+  (<HTMLInputElement> document.getElementById('input-ek'))
+    .addEventListener('input', function () {
+      stateStore.m_v = vecMult(
+        Math.sqrt(2 * this.valueAsNumber / stateStore.m)
+          / vecLength(stateStore.m_v),
+        stateStore.m_v)
       redraw()
     })
 }

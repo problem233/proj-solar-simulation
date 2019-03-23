@@ -35,25 +35,10 @@
     <div id="explosion">
       <b>爆炸：</b>
       <button id="explode">引爆</button>
-      <div id="energy">
-        能量 <i>E</i>：
-        <input type="number" id="input-energy" step="any" min="0">
-        10<sup>29</sup> J
-      </div>
-      <div id="direction">
-        爆炸方向（极坐标系）：
-        <div id="axis">
-          极轴：
-          <select id="axis-select">
-            <option id="option-speed">速度方向</option>
-            <option id="option-radius">恒星方向</option>
-          </select>
-        </div>
-        <div id="angle">
-          角度：
-          <input type="number" id="input-angle" step="any" min="0" max="360">
-          °
-        </div>
+      <div id="work">
+        做功 <i>|W|</i>：
+        <input type="number" id="input-work" step="any" min="0">
+        × 10<sup>29</sup> J
       </div>
     </div>
     <div id="data">
@@ -67,29 +52,29 @@
         <div id="state-M">
           恒星质量 <i>M</i>：
           <input id="input-M" type="number" step="any" min="0">
-          10<sup>29</sup> kg
+          × 10<sup>29</sup> kg
         </div>
         <div id="state-m">
           行星质量 <i>m</i>：
           <input id="input-m" type="number" step="any" min="0">
-          10<sup>22</sup> kg
+          × 10<sup>22</sup> kg
         </div>
         <div id="state-pos">
           行星位置（以恒星球心为坐标原点）：
           <div id="state-pos-x">
             <i>x</i>：
             <input type="number" id="input-pos-x" step="any">
-            10<sup>6</sup> km
+            × 10<sup>6</sup> km
           </div>
           <div id="state-pos-y">
             <i>y</i>：
             <input type="number" id="input-pos-y" step="any">
-            10<sup>6</sup> km
+            × 10<sup>6</sup> km
           </div>
           <div id="state-pos-r">
             <i>r</i>：
             <input type="number" id="input-pos-r" step="any">
-            10<sup>6</sup> km
+            × 10<sup>6</sup> km
           </div>
         </div>
         <div id="state-v">
@@ -106,9 +91,14 @@
           </div>
           <div id="state-v-len">
             <i>v</i>：
-            <input type="number" id="input-v-len" step="any">
+            <input type="number" id="input-v-len" step="any" min="0">
             km/s
           </div>
+        </div>
+        <div id="state-ek">
+          行星动能 <i>E<sub>k</sub></i>：
+          <input type="number" id="input-ek" step="any" min="0">
+          × 10<sup>29</sup> J
         </div>
       </div>
     </div>
