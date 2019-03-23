@@ -1,42 +1,41 @@
+import { clearCanvas, fadingOutTrace, Style, styledCircle } from './canvas'
 import {
   explode, simulate, State,
   vecLength, vecMult, vecSquare
 } from './simulation'
 
-function clearCanvas (ctx: CanvasRenderingContext2D) {
-  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-}
-
-function circle (x: number, y: number, r: number) {
-  const path = new Path2D()
-  path.moveTo(x + r, y)
-  path.arc(x, y, r, 0, Math.PI * 2)
-  return path
+interface Styled {
+  style: Style
 }
 
 const M = 1.9891e30
+const sunStyle: Style = [[0, '#DE5E06'], [0.6, '#EC7610'], [0.9, '#F6C760'], [1, '#FEF9C7']]
 
-const data: { [key: string]: State & { name: string } } = {
+const data: { [key: string]: State & Styled & { name: string } } = {
   mercury: { M,
     name: "水星",
+    style: [[0, '#7E7673'], [0.7, '#8C8384'], [1, '#B0A89D']],
     m: 3.3011e23,
     m_v: [0, 3.886e4],
     m_pos: [6.982e10, 0]
   },
   venus: { M,
     name: "金星",
+    style: [[0, '#A96117'], [0.7, '#C08120'], [1, '#E1A83D']],
     m: 4.8675e24,
     m_v: [0, 3.479e4],
     m_pos: [1.0894e11, 0]
   },
   earth: { M,
     name: "地球",
+    style: [[0, '#4D7ABE'], [0.7, '#5283BB'], [1, '#83B1ED']],
     m: 5.9723e24,
     m_v: [0, 2.929e4],
     m_pos: [1.521e11, 0]
   },
   mars: { M,
     name: "火星",
+    style: [[0, '#9B5A20'], [0.7, '#AD6F2F'], [1, '#D59639']],
     m: 6.4171e23,
     m_v: [0, 2.197e4],
     m_pos: [2.4923e11, 0]
@@ -46,16 +45,19 @@ const data: { [key: string]: State & { name: string } } = {
 const multiSimulate = (state: State, T: number, steps: number): State =>
   steps > 0 ? multiSimulate(simulate(state, T), T, steps - 1) : state
 
-function drawState (ctx: CanvasRenderingContext2D, scale: number, realisticSize: boolean, state: State) {
-  ctx.fillStyle = "yellow"
-  ctx.fill(circle(
-    ctx.canvas.width / 2, ctx.canvas.height / 2,
-    (realisticSize ? 6.957e8 : 4e10) * scale))
-  ctx.fillStyle = "gray"
-  ctx.fill(circle(
-    ctx.canvas.width / 2 + state.m_pos[0] * scale,
-    ctx.canvas.height / 2 - state.m_pos[1] * scale,
-    (realisticSize ? 2.4397e6 : 5e9) * scale));
+function drawState (
+    ctx0: CanvasRenderingContext2D, ctx1: CanvasRenderingContext2D,
+    scale: number, state: State, style: Style) {
+  styledCircle(
+    ctx0, sunStyle,
+    ctx0.canvas.width / 2, ctx0.canvas.height / 2,
+    4e10 * scale)
+  const viewMPos: [number, number] = [
+    ctx0.canvas.width / 2 + state.m_pos[0] * scale,
+    ctx0.canvas.height / 2 - state.m_pos[1] * scale
+  ]
+  styledCircle(ctx0, style, viewMPos[0], viewMPos[1], 5e9 * scale)
+  fadingOutTrace(ctx1, viewMPos[0], viewMPos[1]);
   (<HTMLInputElement> document.getElementById('input-M')).valueAsNumber = state.M / 1e29;
   (<HTMLInputElement> document.getElementById('input-m')).valueAsNumber = state.m / 1e22;
   (<HTMLInputElement> document.getElementById('input-pos-x')).valueAsNumber = state.m_pos[0] / 1e9;
@@ -70,10 +72,17 @@ function drawState (ctx: CanvasRenderingContext2D, scale: number, realisticSize:
 window.onload = () => {
   const view = <HTMLDivElement> document.getElementById('view')
 
-  const canvas = document.createElement('canvas')
-  canvas.height = view.clientHeight
-  canvas.width = view.clientWidth
-  view.appendChild(canvas)
+  const canvas0 = document.createElement('canvas')
+  canvas0.height = view.clientHeight
+  canvas0.width = view.clientWidth
+  canvas0.style.zIndex = '1'
+  view.appendChild(canvas0)
+
+  const canvas1 = document.createElement('canvas')
+  canvas1.height = view.clientHeight
+  canvas1.width = view.clientWidth
+  canvas1.style.zIndex = '0'
+  view.appendChild(canvas1)
 
   // constants
   const framerate = 50
@@ -86,17 +95,19 @@ window.onload = () => {
   let T = viewSpeed / simSpeed
   let steps = simSpeed / framerate
 
-  let scale = canvas.height / 3.1e11
+  let scale = canvas0.height / 3.1e11
   let stateStore: State = data.mercury
+  let styleStore: Style = data.mercury.style
   let toPause = false
   let reallyPaused = true
 
-  const ctx = <CanvasRenderingContext2D> canvas.getContext('2d')
+  const ctx0 = <CanvasRenderingContext2D> canvas0.getContext('2d')
+  const ctx1 = <CanvasRenderingContext2D> canvas1.getContext('2d')
+  ctx1.fillStyle = 'white'
 
   function redraw () {
-    clearCanvas(ctx)
-    // it's impractical to use realistic size
-    drawState(ctx, scale, false, stateStore)
+    clearCanvas(ctx0)
+    drawState(ctx0, ctx1, scale, stateStore, styleStore)
   }
 
   redraw();
@@ -158,6 +169,7 @@ window.onload = () => {
     .addEventListener('input', function () {
       if (this.validity.valid) {
         scale = 1 / this.valueAsNumber / 1e7
+        clearCanvas(ctx1)
         redraw()
       }
     });
@@ -184,6 +196,8 @@ window.onload = () => {
       pause()
       setTimeout(() => {
         stateStore = data[key]
+        styleStore = data[key].style
+        clearCanvas(ctx1)
         if (! prevPaused) start()
         else redraw()
       }, frameTime)

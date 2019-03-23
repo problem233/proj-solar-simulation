@@ -17,6 +17,12 @@ b {
   background-color: #070B34;
 }
 
+#view > canvas {
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+
 #control {
   position: absolute;
   right: 0;
