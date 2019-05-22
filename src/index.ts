@@ -4,14 +4,14 @@ import {
   vecLength, vecMult, vecSquare
 } from './simulation'
 
+import sunPhoto from './sun.png'
+
 interface Styled {
   style: Style
 }
 
 const M = 1.9891e30
 const sunRadius = 6.957e8
-
-const sunStyle: Style = [[0, '#DE5E06'], [0.6, '#EC7610'], [0.9, '#F6C760'], [1, '#FEF9C7']]
 
 const data: { [key: string]: State & Styled & { name: string } } = {
   mercury: { M, t: 0,
@@ -51,13 +51,20 @@ const multiSimulate = (state: State, T: number, steps: number): State =>
     : multiSimulate(simulate(state, T), T, steps - 1)
   : state
 
+function drawSun (ctx: CanvasRenderingContext2D, scale: number) {
+  const img = new Image()
+  img.addEventListener('load', () => {
+    ctx.drawImage(img,
+      ctx.canvas.width / 2 - 4e10 * scale,
+      ctx.canvas.height / 2 - 4e10 * scale,
+      8e10 * scale, 8e10 * scale)
+  })
+  img.src = sunPhoto
+}
+
 function drawState (
     ctx0: CanvasRenderingContext2D, ctx1: CanvasRenderingContext2D,
     scale: number, state: State, style: Style) {
-  styledCircle(
-    ctx0, sunStyle,
-    ctx0.canvas.width / 2, ctx0.canvas.height / 2,
-    4e10 * scale)
   const viewMPos: [number, number] = [
     ctx0.canvas.width / 2 + state.m_pos[0] * scale,
     ctx0.canvas.height / 2 - state.m_pos[1] * scale
@@ -82,14 +89,20 @@ window.onload = () => {
   const canvas0 = document.createElement('canvas')
   canvas0.height = view.clientHeight
   canvas0.width = view.clientWidth
-  canvas0.style.zIndex = '1'
+  canvas0.style.zIndex = '2'
   view.appendChild(canvas0)
 
   const canvas1 = document.createElement('canvas')
   canvas1.height = view.clientHeight
   canvas1.width = view.clientWidth
-  canvas1.style.zIndex = '0'
+  canvas1.style.zIndex = '1'
   view.appendChild(canvas1)
+
+  const canvas2 = document.createElement('canvas')
+  canvas2.height = view.clientHeight
+  canvas2.width = view.clientWidth
+  canvas2.style.zIndex = '0'
+  view.appendChild(canvas2)
 
   // constants
   const framerate = 50
@@ -111,12 +124,14 @@ window.onload = () => {
   const ctx0 = <CanvasRenderingContext2D> canvas0.getContext('2d')
   const ctx1 = <CanvasRenderingContext2D> canvas1.getContext('2d')
   ctx1.fillStyle = 'white'
+  const ctx2 = <CanvasRenderingContext2D> canvas2.getContext('2d')
 
   function redraw () {
     clearCanvas(ctx0)
     drawState(ctx0, ctx1, scale, stateStore, styleStore)
   }
 
+  drawSun(ctx2, scale)
   redraw();
   (<HTMLInputElement> document.getElementById('input-scale')).valueAsNumber = 1 / scale / 1e7;
   (<HTMLInputElement> document.getElementById('input-timescale')).valueAsNumber = 10
@@ -181,6 +196,8 @@ window.onload = () => {
       if (this.validity.valid) {
         scale = 1 / this.valueAsNumber / 1e7
         clearCanvas(ctx1)
+        clearCanvas(ctx2)
+        drawSun(ctx2, scale)
         redraw()
       }
     });
