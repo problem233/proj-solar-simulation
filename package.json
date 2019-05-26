@@ -3,15 +3,19 @@
   "version": "1.0.0",
   "license": "MIT",
   "private": true,
+  "config": {
+    "bundle_args": "src/index.html --public-url ./"
+  },
   "scripts": {
-    "build": "parcel build src/index.html --public-url ./",
+    "build": "parcel build $npm_package_config_bundle_args",
     "clean": "rm -rf dist",
+    "deploy": "./deploy.sh",
     "dev": "parcel src/index.html"
   },
   "devDependencies": {
-    "parcel-bundler": "^1.12.0",
-    "tslint": "^5.13.1",
-    "typescript": "^3.3.3333",
+    "parcel-bundler": "^1.12.3",
+    "tslint": "^5.16.0",
+    "typescript": "^3.4.5",
     "typescript-tslint-plugin": "^0.3.1"
   }
 }
